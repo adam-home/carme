@@ -71,22 +71,6 @@
     (not-any? (fn [part] (= ".." (.toString part)))
               (iterator-seq (.iterator path)))))
 
-    
-;; (defn read-file
-;;   [uri]
-;;   (let [base-path (Path/of cfg-basedir (into-array [""]))
-;;         uri-path  (Path/of (.getPath uri) (into-array [""]))
-;;         path      (-> base-path
-;;                       .toString
-;;                       (Path/of (into-array [(.getPath uri)]))
-;;                       .normalize)]
-
-;;     (println "uri path" (.getPath uri))
-;;     (println "base-path:" base-path)
-;;     (println "Path:" path)
-
-    
-;;     path))
 
 (defn get-uri-from-string
   "Performas all checks to ensure that the URI is valid. Throws an
@@ -112,6 +96,7 @@
   (let [uri-str (read-request in)
         uri     (get-uri-from-string uri-str)]
     uri))
+
 
 (defn is-valid-file?
   [path]
