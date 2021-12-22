@@ -5,7 +5,8 @@
            (java.nio.file Path)
            (java.net URI)
            (javax.net ServerSocketFactory)
-           (javax.net.ssl SSLServerSocketFactory KeyManagerFactory SSLContext)))
+           (javax.net.ssl SSLServerSocketFactory KeyManagerFactory SSLContext))
+  (:gen-class))
 
 (def cfg-hostname "localhost")
 (def cfg-port     1965)
