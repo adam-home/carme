@@ -48,7 +48,7 @@
     (send-and-close client in out meta payload)))
 
 (defn send-error
-  "Send an error response to the client, and close the connection.")
+  "Send an error response to the client, and close the connection."
   [client in out status message extra-data]
 
   (let [meta (get-meta status)]
@@ -58,5 +58,5 @@
       (println "MESSAGE:" message)
       (println "EXTRA  :" extra-data)
 
-      (send-and-close client in out meta))
+      (send-and-close client in out meta)))
   
