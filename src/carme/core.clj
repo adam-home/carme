@@ -13,11 +13,6 @@
 
 (def basedir-path (-> cfg-basedir File. .toPath))
 
-
-(defn handle-error
-  [e]
-  (println (str "ERROR:" (.getMessage e)) (ex-data e)))
-
 (defn read-request
   "Read a request line from the input stream, up to \r\n"
   [in]
