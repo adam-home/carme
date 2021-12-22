@@ -52,11 +52,15 @@
 
 
 (defn valid-scheme?
+  "Check to see if the URI's scheme is supported. Only \"gemini\" is
+  valid at the moment."
   [uri]
   (= "gemini" (.getScheme uri)))
 
 
 (defn host-and-port-valid?
+  "Check to see if the hostname matches the configured name, as does
+  the port number (if supplied)."
   [uri]
   (let [host (.getHost uri)
         port (.getPort uri)]
@@ -66,6 +70,8 @@
 
 
 (defn valid-path?
+  "Ensures that the path in a URI is valid, e.g. does not contain \"..\"
+  to break out of the specified gemfile directory."
   [uri]
   (let [path (.toPath (File. (.getPath uri)))]
     (not-any? (fn [part] (= ".." (.toString part)))
@@ -73,7 +79,7 @@
 
 
 (defn get-uri-from-string
-  "Performas all checks to ensure that the URI is valid. Throws an
+  "Performs all checks to ensure that the URI is valid. Throws an
   Exception if not."
   [uri-str]
   (when (starts-with-feff? uri-str)
