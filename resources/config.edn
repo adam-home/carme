@@ -1,0 +1,5 @@
+{
+ :host     "localhost"
+ :port     1965
+ :base-dir "resources/gemfiles"
+}

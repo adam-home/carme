@@ -1,5 +1,6 @@
 (ns carme.core
-  (:require [carme.response :as response])
+  (:require [carme.config :as config]
+            [carme.response :as response])
   (:import (java.io FileInputStream BufferedInputStream BufferedOutputStream File)
            (java.security KeyStore)
            (java.nio.file Path)
@@ -160,7 +161,7 @@
   (let [ssl-context (get-ssl-context "keystore.jks" "password")
         factory     (.getServerSocketFactory ssl-context)
         socket      (.createServerSocket factory port)]
-    (println "Ready")
+    (println "Ready on port" port)
     (loop [client (.accept socket)]
       (-> (Thread. (fn [] (accept-client client)))
           .start)
@@ -169,4 +170,5 @@
 
 (defn -main
   []
-  (let [server (create-server :port cfg-port)]))
+  (config/load-config "resources/config.edn")
+  (let [server (create-server :port (config/get-config :port))]))
