@@ -4,16 +4,16 @@
   (:import (java.io FileInputStream BufferedInputStream BufferedOutputStream File)
            (java.security KeyStore)
            (java.nio.file Path)
-           (java.net URI)
+           (java.net URI InetAddress)
            (javax.net ServerSocketFactory)
            (javax.net.ssl SSLServerSocketFactory KeyManagerFactory SSLContext))
   (:gen-class))
 
-(def cfg-hostname "localhost")
-(def cfg-port     1965)
-(def cfg-basedir  "./resources/gemfiles")
+;; (def cfg-hostname "localhost")
+;; (def cfg-port     1965)
+;; (def cfg-basedir  "./resources/gemfiles")
 
-(def basedir-path (-> cfg-basedir File. .toPath))
+;; (def basedir-path (-> cfg-basedir File. .toPath))
 
 (defn read-request
   "Read a request line from the input stream, up to \r\n"
@@ -61,9 +61,9 @@
   [uri]
   (let [host (.getHost uri)
         port (.getPort uri)]
-    (and (= host cfg-hostname)
+    (and (= host (config/get-config :host))
          (or (= port -1)
-             (= port cfg-port)))))
+             (= port (config/get-config :port))))))
 
 
 (defn valid-path?
@@ -116,7 +116,7 @@
 (defn load-local-file
   [local-path]
   (println "Load file" local-path)
-  (let [path (.resolve basedir-path local-path)]
+  (let [path (.resolve (-> (config/get-config :basedir) File. .toPath) local-path)]
     (println "Resolves to" path)
     (is-valid-file? path)
     (slurp (.toFile path))))
@@ -157,11 +157,11 @@
         
 
 (defn create-server
-  [& {:keys [port]}]
+  [& {:keys [host port]}]
   (let [ssl-context (get-ssl-context "keystore.jks" "password")
         factory     (.getServerSocketFactory ssl-context)
-        socket      (.createServerSocket factory port)]
-    (println "Ready on port" port)
+        socket      (.createServerSocket factory port -1 (InetAddress/getByName host))]
+    (println (str "Ready on " host ":" port))
     (loop [client (.accept socket)]
       (-> (Thread. (fn [] (accept-client client)))
           .start)
@@ -171,4 +171,5 @@
 (defn -main
   []
   (config/load-config "resources/config.edn")
-  (let [server (create-server :port (config/get-config :port))]))
+  (let [server (create-server :host (config/get-config :host)
+                              :port (config/get-config :port))]))
