@@ -1,5 +1,6 @@
 (ns carme.core
-  (:require [carme.config :as config]
+  (:require [clojure.java.io :as io]
+            [carme.config :as config]
             [carme.response :as response])
   (:import (java.io FileInputStream BufferedInputStream BufferedOutputStream File)
            (java.security KeyStore)
@@ -103,7 +104,6 @@
 
 (defn is-valid-file?
   [path]
-  (println "is-valid-file?" path)
   (let [file (.toFile path)]
     (when-not (.exists file)
       (throw (ex-info "File not found" {:status 51 :extra (.getAbsolutePath file)})))
@@ -113,26 +113,41 @@
      (throw (ex-info "Not a regular file" {:status 51 :extra (.getAbsolutePath file)})))))
 
 
-(defn guess-content-type
+(defn guess-mime-type
+  "Guess the mime type of a file, specificed by a Path.
+
+  If the filename extension is specified in the user's configuration
+  file (e.g. \".gmi\"), use that. If not present, try to guess using
+  Files/probeContentType. Finally, assume application/octet-stream."
   [path]
   (let [user-type (config/get-mime-type
                     (str "." (last (clojure.string/split (.toString path) #"\."))))
         sys-type  (Files/probeContentType path)]
-    (println "user-type:" user-type)
-    (println "sys-type:" sys-type)
+
     (or user-type
         sys-type
         "application/octet-stream")))
 
 
+(defn file->bytes
+  "Given a File, read the contents and return as a byte array."
+  [file]
+  (with-open [in (io/input-stream file)
+              out (java.io.ByteArrayOutputStream.)]
+    (io/copy in out)
+    (.toByteArray out)))
+
+
 (defn load-local-file
+  "For a Path, check for a file at the configured basedir + Path.
+
+  If it's found, return a map containing the mime-type (string) and content (bytes).
+  If it's not found, an Exception is thrown."
   [local-path]
-  (println "Load file" local-path)
   (let [path (.resolve (-> (config/get-config :basedir) File. .toPath) local-path)]
-    (println "Resolves to" path)
     (is-valid-file? path)
-    {:content-type (guess-content-type path)
-     :content      (slurp (.toFile path))}))
+    {:mime-type (guess-mime-type path)
+     :content   (file->bytes (.toFile path))}))
 
 
 (defn accept-client
@@ -144,11 +159,10 @@
     (try
       (let [uri (read-uri in)]
         (println "Request for uri" uri)
-        (let [{content-type :content-type content :content} (load-local-file (subs (.getPath uri) 1))] ;; subs to remove leading /
-          (println "content is" (count content))
+        (let [{mime-type :mime-type content :content} (load-local-file (subs (.getPath uri) 1))] ;; subs to remove leading /
           (response/send-response client in out
                                   20
-                                  content-type
+                                  mime-type
                                   content)))
 
       (catch Exception e

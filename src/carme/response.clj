@@ -9,12 +9,18 @@
                    59 "BAD REQUEST"})
 
 
-(defn- send-data
+(defn- send-bytes
+  "Send bytes to the client."
   [out data]
-  (.write out (.getBytes data)))
-          
+  (.write out data))
+
+(defn- send-string
+  "Send a string to the client."
+  [out data]
+  (send-bytes out (.getBytes data)))
 
 (defn- close
+  "Close a client connection."
   [client in out]
   (.flush out)
   (.close in)
@@ -24,12 +30,12 @@
 (defn- send-and-close
   "Send a response to a client, and immediately close the connection."
   ([client in out meta]
-   (send-data out meta)
+   (send-string out meta)
    (close client in out))
 
   ([client in out meta payload]
-   (send-data out meta)
-   (send-data out payload)
+   (send-string out meta)
+   (send-bytes out payload)
    (close client in out)))
 
 (defn- get-meta
@@ -53,7 +59,7 @@
 
   (let [meta (get-meta status)]
 
-      (println "RESPONSE ----------")
+      (println "ERROR RESPONSE ----------")
       (println meta)
       (println "MESSAGE:" message)
       (println "EXTRA  :" extra-data)
