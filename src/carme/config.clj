@@ -12,3 +12,7 @@
 (defn get-config
   [option]
   (get @config option))
+
+(defn get-mime-type
+  [suffix]
+  (get (get-config :mime-types) suffix))

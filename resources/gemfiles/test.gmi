@@ -1,3 +1,5 @@
 # Test file 1
 
 This is a test gemini file
+
+=> gemini://localhost:1965/archlinux-logo.png Test image

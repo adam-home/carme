@@ -1,5 +1,6 @@
 {
  :host    "localhost"
  :port    1965
- :basedir "resources/gemfiles"}
-
+ :basedir "resources/gemfiles"
+ :mime-types {
+              ".gmi" "text/gemini"}}

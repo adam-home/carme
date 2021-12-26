@@ -3,7 +3,7 @@
             [carme.response :as response])
   (:import (java.io FileInputStream BufferedInputStream BufferedOutputStream File)
            (java.security KeyStore)
-           (java.nio.file Path)
+           (java.nio.file Path Files)
            (java.net URI InetAddress)
            (javax.net ServerSocketFactory)
            (javax.net.ssl SSLServerSocketFactory KeyManagerFactory SSLContext))
@@ -113,13 +113,26 @@
      (throw (ex-info "Not a regular file" {:status 51 :extra (.getAbsolutePath file)})))))
 
 
+(defn guess-content-type
+  [path]
+  (let [user-type (config/get-mime-type
+                    (str "." (last (clojure.string/split (.toString path) #"\."))))
+        sys-type  (Files/probeContentType path)]
+    (println "user-type:" user-type)
+    (println "sys-type:" sys-type)
+    (or user-type
+        sys-type
+        "application/octet-stream")))
+
+
 (defn load-local-file
   [local-path]
   (println "Load file" local-path)
   (let [path (.resolve (-> (config/get-config :basedir) File. .toPath) local-path)]
     (println "Resolves to" path)
     (is-valid-file? path)
-    (slurp (.toFile path))))
+    {:content-type (guess-content-type path)
+     :content      (slurp (.toFile path))}))
 
 
 (defn accept-client
@@ -131,11 +144,12 @@
     (try
       (let [uri (read-uri in)]
         (println "Request for uri" uri)
-        (let [payload (load-local-file (subs (.getPath uri) 1))] ;; subs to remove leading /
+        (let [{content-type :content-type content :content} (load-local-file (subs (.getPath uri) 1))] ;; subs to remove leading /
+          (println "content is" (count content))
           (response/send-response client in out
                                   20
-                                  "text/gemini"
-                                  payload)))
+                                  content-type
+                                  content)))
 
       (catch Exception e
         (let [message (.getMessage e)
