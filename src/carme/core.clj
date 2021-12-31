@@ -153,7 +153,15 @@
 (defn accept-client
   "Accept and process a client connection."
   [client]
-  (println "Accepted client" client)
+  (println "Accepted client  :" client)
+
+  (println "Peer certificates:"
+           (try
+             (.getPeerCertificates (.getSession client))
+             (catch Exception e
+               (println (.getMessage e))
+               "No certs")))
+
   (let [in  (BufferedInputStream. (.getInputStream client))
         out (BufferedOutputStream. (.getOutputStream client))]
     (try
