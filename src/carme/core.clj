@@ -1,7 +1,8 @@
 (ns carme.core
   (:require [clojure.java.io :as io]
             [carme.config :as config]
-            [carme.response :as response])
+            [carme.response :as response]
+            [carme.logging :as logging])
   (:import (java.io FileInputStream BufferedInputStream BufferedOutputStream File)
            (java.security KeyStore)
            (java.nio.file Path Files)
@@ -186,13 +187,13 @@
 (defn accept-client
   "Accept and process a client connection."
   [client]
-  (println "Accepted client  :" client)
+  (logging/log :info "Accepted client :" client)
 
   (let [in  (BufferedInputStream. (.getInputStream client))
         out (BufferedOutputStream. (.getOutputStream client))]
     (try
       (let [uri (read-uri in)]
-        (println "Request for uri" uri)
+        (logging/log :debug "Request for uri" uri)
 
         (let [path (get-file-or-index (get-normalized-path uri))]
           (if-let [result (load-local-file path)]
@@ -204,7 +205,7 @@
       (catch Exception e
         (let [message (.getMessage e)
               {:keys [status extra]} (ex-data e)]
-          (println e)
+          (logging/log :error e)
           (response/send-error client in out status message extra))))))
 
 
@@ -234,7 +235,7 @@
         socket-factory (.getServerSocketFactory ssl-context)
         socket         (.createServerSocket socket-factory port -1 (InetAddress/getByName host))]
 
-    (println (str "Ready on " host ":" port))
+    (logging/log :info (str "Ready on " host ":" port))
 
     (-> (Thread. (fn []
                    (loop [client (.accept socket)]
