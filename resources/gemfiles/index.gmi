@@ -1,0 +1,5 @@
+# Index file
+
+Hello world, this is the index
+
+=> gemini://localhost:1965/test.gmi
