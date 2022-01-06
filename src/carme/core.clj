@@ -10,11 +10,6 @@
            (javax.net.ssl SSLServerSocketFactory KeyManagerFactory SSLContext))
   (:gen-class))
 
-;; (def cfg-hostname "localhost")
-;; (def cfg-port     1965)
-;; (def cfg-basedir  "./resources/gemfiles")
-
-;; (def basedir-path (-> cfg-basedir File. .toPath))
 
 (defn read-request
   "Read a request line from the input stream, up to \r\n"
@@ -192,25 +187,6 @@
   "Accept and process a client connection."
   [client]
   (println "Accepted client  :" client)
-
-  ;; (let [session (.getSession client)]
-  ;;   (println "Protocol :" (.getProtocol session))
-  ;;   (println "Peer host:" (.getPeerHost session))
-  ;;   (println "Peer port:" (.getPeerPort session))
-
-  ;;   (println "Peer principal:"
-  ;;            (try
-  ;;              (.getPeerPrincipal session)
-  ;;              (catch Exception e
-  ;;                (println "!!!! Exception:" (.getMessage e))
-  ;;                "Unable to get principal")))
-
-  ;;   (println "Peer certificates:"
-  ;;        (try
-  ;;          (.getPeerCertificates session)
-  ;;          (catch Exception e
-  ;;            (println "!!!! Exception:" (.getMessage e))
-  ;;            "No certs"))))  
 
   (let [in  (BufferedInputStream. (.getInputStream client))
         out (BufferedOutputStream. (.getOutputStream client))]
