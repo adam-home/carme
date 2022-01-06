@@ -4,7 +4,7 @@
              :info  1
              :debug 2})
 
-(def log-level (atom :error))
+(def log-level (atom :info))
 
 (def date-format (java.text.SimpleDateFormat. "yyyy-MM-dd HH:mm:ss.SSS"))
 
@@ -28,8 +28,13 @@
        (clojure.string/join " " msg-list)))
 
 
+(defn will-log?
+  [level]
+  (<= (get levels level)
+      (get levels @log-level)))
+
 
 (defn log
   [level & msgs]
-  (when (<= (get levels @log-level) (get levels level))
+  (when (will-log? level)
     (println (make-log-message level msgs))))
