@@ -2,12 +2,16 @@
   (:require [clojure.java.io :as io]
             [clojure.edn :as edn]))
 
-(def config (atom {}))
+(def config (atom {:host "localhost"
+                   :port 1065
+                   :basedir "/var/gemini"
+                   :index-file "index.gmi"
+                   :mime-types {".gmi" "text/gemini"}}))
 
 (defn load-config
   [filename]
   (with-open [reader (java.io.PushbackReader. (io/reader filename))]
-    (reset! config (edn/read reader))))
+    (reset! config (merge @config (edn/read reader)))))
 
 (defn get-config
   [option]
