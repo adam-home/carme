@@ -59,13 +59,20 @@
       (is (= true (has-index-file? path))))))
           
 
+(deftest test-has-index-file?
+  (testing "If the URI points to a directory, check there is an index file there"
+
+    (set-test-config)
+
+    (let [path (get-normalized-path (URI. "gemini://my-host:1234"))]
+      (is (= true (has-index-file? path))))))
+
 (deftest test-load-index-file
   (testing "If the URI points to a directory that contains an index file, load it"
 
     (set-test-config)
-    
-    (let [path (get-normalized-path (URI. "gemini://my-host:1234"))]
-      (is (= true (has-index-file? path)))
+
+    (let [path (get-file-or-index (get-normalized-path (URI. "gemini://my-host:1234")))]
       (try
         (load-local-file path)
         (catch Exception e
