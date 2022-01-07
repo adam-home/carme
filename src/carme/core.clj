@@ -14,8 +14,8 @@
   (:gen-class))
 
 
-(defn accept-client
-  "Accept and process a client connection."
+(defn- process-client
+  "Process a client connection."
   [client]
   (logging/log :info "Accepted client :" client)
 
@@ -39,7 +39,9 @@
           (response/send-error client in out status message extra))))))
 
 
-(defn get-ssl-context
+(defn- get-ssl-context
+  "Load the SSL context from the keystore with the given filename and
+  password."
   [keystore-name password]
   (let [password-char (.toCharArray password)
         keystore (KeyStore/getInstance "JKS")]
@@ -53,13 +55,15 @@
          ssl-context))))
 
 
-(defn handle-client
+(defn- handle-client
+  "Spin off a Thread for processing a client connection."
   [client]
-  (-> (Thread. (fn [] (accept-client client)))
+  (-> (Thread. (fn [] (process-client client)))
       .start))
 
 
 (defn create-server
+  "Create and start the Gemini server. Returns the Thread that is running the server."
   [& {:keys [host port]}]
   (let [ssl-context    (get-ssl-context "keystore.jks" "password")
         socket-factory (.getServerSocketFactory ssl-context)
@@ -67,11 +71,12 @@
 
     (logging/log :info (str "Ready on " host ":" port))
 
-    (-> (Thread. (fn []
-                   (loop [client (.accept socket)]
-                     (handle-client client)
-                     (recur (.accept socket)))))
-        .start)))
+    (let [server-thread (Thread. (fn []
+                                   (loop [client (.accept socket)]
+                                     (handle-client client)
+                                     (recur (.accept socket)))))]
+      (.start server-thread)
+      server-thread)))
 
 
 (defn -main
