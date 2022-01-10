@@ -5,12 +5,10 @@
             [carme.response :as response]
             [carme.logging :as logging]
             [carme.files :as files])
-  (:import (java.io FileInputStream BufferedInputStream BufferedOutputStream File)
+  (:import (java.io FileInputStream BufferedInputStream BufferedOutputStream)
            (java.security KeyStore)
-           (java.nio.file Path Files)
            (java.net URI InetAddress)
-           (javax.net ServerSocketFactory)
-           (javax.net.ssl SSLServerSocketFactory KeyManagerFactory SSLContext))
+           (javax.net.ssl KeyManagerFactory SSLContext))
   (:gen-class))
 
 
