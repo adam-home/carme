@@ -1,5 +1,6 @@
 (ns carme.core
-  (:require [carme.config :as config]
+  (:require [clojure.java.io :as io]
+            [carme.config :as config]
             [carme.request :as request]
             [carme.response :as response]
             [carme.logging :as logging]
@@ -76,8 +77,18 @@
       server-thread)))
 
 
+(defn get-config-filename
+  [args]
+  (if (and (= 1 (count args))
+           (files/is-valid-file? (-> (first args)
+                                     io/as-file
+                                     .toPath)))
+    (first args)
+    "config.edn"))
+
+
 (defn -main
-  []
-  (config/load-config "resources/config.edn")
+  [& args]
+  (config/load-config (get-config-filename args))
   (let [server (create-server :host (config/get-config :host)
                               :port (config/get-config :port))]))

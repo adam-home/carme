@@ -18,17 +18,17 @@ For fun. And to learn new things.
 
 ## Usage
 
-Configuration is loaded from the `resources/config.edn` file.
+Configuration is loaded from the `config.edn` file in the working directory, unless overridden.
 
 You need a `keystore.jks` containing your server-side certificate in the directory from which you start the server.
 
-> lein run
+> lein run [path to config file]
 
 or
 
 > lein uberjar
 >
-> java -jar target/carme-*-standalone.jar
+> java -jar target/carme-*-standalone.jar [path to config file]
 
 
 ## License

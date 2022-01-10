@@ -1,6 +1,7 @@
 (ns carme.config
   (:require [clojure.java.io :as io]
-            [clojure.edn :as edn]))
+            [clojure.edn :as edn]
+            [carme.logging :as logging]))
 
 (def config (atom {:host "localhost"
                    :port 1065
@@ -10,6 +11,7 @@
 
 (defn load-config
   [filename]
+  (logging/log :info "Loading config from" filename)
   (with-open [reader (java.io.PushbackReader. (io/reader filename))]
     (reset! config (merge @config (edn/read reader)))))
 
