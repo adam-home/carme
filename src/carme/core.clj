@@ -1,6 +1,5 @@
 (ns carme.core
-  (:require [clojure.java.io :as io]
-            [carme.config :as config]
+  (:require [carme.config :as config]
             [carme.request :as request]
             [carme.response :as response]
             [carme.logging :as logging]
@@ -17,7 +16,7 @@
   [client]
   (logging/log :info "Accepted client :" client)
 
-  (let [in  (BufferedInputStream. (.getInputStream client))
+  (let [in  (BufferedInputStream.  (.getInputStream client))
         out (BufferedOutputStream. (.getOutputStream client))]
     (try
       (let [uri (request/read-uri in)]
@@ -31,7 +30,7 @@
                                     (:content result))
             (throw (ex-info "Unable to find file to serve" {:status 59 :extra (.toString path)})))))
       (catch Exception e
-        (let [message (.getMessage e)
+        (let [message                (.getMessage e)
               {:keys [status extra]} (ex-data e)]
           (logging/log :error e)
           (response/send-error client in out status message extra))))))
@@ -42,7 +41,7 @@
   password."
   [keystore-name password]
   (let [password-char (.toCharArray password)
-        keystore (KeyStore/getInstance "JKS")]
+        keystore      (KeyStore/getInstance "JKS")]
      (.load keystore (FileInputStream. keystore-name) password-char)
 
      (let [kmf (KeyManagerFactory/getInstance "SunX509")]
