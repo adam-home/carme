@@ -68,6 +68,14 @@
                path-str)
              (into-array [""]))))
 
+
+(defn get-normalized-file
+  "Reads a URI and returns a File object for the path. Removes any
+  leading, trailing or duplicated slashes."
+  [uri]
+  (.toFile (get-normalized-path uri)))
+
+
 (defn valid-path?
   "Ensures that the path in a URI is valid, e.g. does not contain \"..\"
   to break out of the specified gemfile directory."

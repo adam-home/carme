@@ -18,9 +18,9 @@
 
     (set-test-config)
 
-    (let [path (request/get-normalized-path (URI. "gemini://my-host:1234"))]
-      (is (= true (is-directory? path)))
-      (is (= true (has-index-file? path))))))
+    (let [file (request/get-normalized-file (URI. "gemini://my-host:1234"))]
+      (is (= true (is-directory? file)))
+      (is (= true (has-index-file? file))))))
 
 
 (deftest test-has-index-file?
@@ -28,8 +28,8 @@
 
     (set-test-config)
 
-    (let [path (request/get-normalized-path (URI. "gemini://my-host:1234"))]
-      (is (= true (has-index-file? path))))))
+    (let [file (request/get-normalized-file (URI. "gemini://my-host:1234"))]
+      (is (= true (has-index-file? file))))))
 
 
 (deftest test-load-index-file
@@ -37,8 +37,9 @@
 
     (set-test-config)
 
-    (let [path (get-file-or-index (request/get-normalized-path (URI. "gemini://my-host:1234")))]
+    (let [file (get-file-or-index (request/get-normalized-file (URI. "gemini://my-host:1234")))]
       (try
-        (load-local-file path)
+        (load-local-file file)
         (catch Exception e
+          (println e)
           (is (= false (.getMessage e))))))))

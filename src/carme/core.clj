@@ -20,21 +20,31 @@
   (let [in  (BufferedInputStream.  (.getInputStream client))
         out (BufferedOutputStream. (.getOutputStream client))]
     (try
-      (let [uri (request/read-uri in)]
+      (let [uri  (request/read-uri in)
+            file (request/get-normalized-file uri)]
         (logging/log :debug "Request for uri" uri)
 
-        (let [path (files/get-file-or-index (request/get-normalized-path uri))]
-          (if-let [result (files/load-local-file path)]
+        (if-let [local-file (files/get-file-or-index (request/get-normalized-file uri))]
+          ;; Found a file (or index file) - send the contents
+          (let [result (files/load-local-file local-file)]
             (response/send-response client in out
                                     20
                                     (:mime-type result)
-                                    (:content result))
-            (throw (ex-info "Unable to find file to serve" {:status 59 :extra (.toString path)})))))
+                                    (:content result)))
+          ;; No file, generate index?
+          (if (config/get-config :generate-missing-index)
+            ;; Yes, generate index
+            (response/send-response client in out
+                                    20
+                                    "text/gemini"
+                                    (files/generate-index file))
+            ;; No, throw exception
+            (throw (ex-info "Unable to find file to serve" {:status 59 :extra (.toString file)})))))
       (catch Exception e
-        (let [message                (.getMessage e)
-              {:keys [status extra]} (ex-data e)]
-          (logging/log :error e)
-          (response/send-error client in out status message extra))))))
+       (let [message                (.getMessage e)
+             {:keys [status extra]} (ex-data e)]
+         (logging/log :error e)
+         (response/send-error client in out status message extra))))))
 
 
 (defn- get-ssl-context
@@ -78,11 +88,11 @@
 
 
 (defn get-config-filename
+  "Get the name of the config file, either from supplied command line
+  arguments or a default."
   [args]
   (if (and (= 1 (count args))
-           (files/is-valid-file? (-> (first args)
-                                     io/as-file
-                                     .toPath)))
+           (files/is-valid-file? (io/as-file (first args))))
     (first args)
     "config.edn"))
 

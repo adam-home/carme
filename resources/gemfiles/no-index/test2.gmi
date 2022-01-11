@@ -1,0 +1,3 @@
+# Second unindexed file
+
+This is also a test gemini file, with no index in the directory.
