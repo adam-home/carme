@@ -10,6 +10,12 @@
 
 (def ^:private date-format (java.text.SimpleDateFormat. "yyyy-MM-dd HH:mm:ss.SSS"))
 
+(defn- get-date-time-now
+  []
+  (->> (java.util.Calendar/getInstance)
+       .getTime
+       (.format date-format)))
+
 
 (defn set-log-level
   "Set the current logging level"
@@ -26,9 +32,7 @@
 (defn make-log-message
   "Format a message to be output."
   [level msg-list]
-  (str (->> (java.util.Calendar/getInstance)
-            .getTime
-            (.format date-format))
+  (str (get-date-time-now)
        "|"
        (clojure.string/upper-case (name level))
        "|"
@@ -48,3 +52,23 @@
   [level & msgs]
   (when (will-log? level)
     (println (make-log-message level msgs))))
+
+
+(defn- get-peer-principal
+  [session]
+  (try
+    (.getPeerPrincipal session)
+    (catch javax.net.ssl.SSLPeerUnverifiedException ex
+      "anon")))
+
+
+(defn log-access
+  [client resource]
+  (let [session (.getSession client)]
+    (log :info
+         "ACCESS"
+         (.getPeerHost session)
+         (get-peer-principal session)
+         resource)))
+
+

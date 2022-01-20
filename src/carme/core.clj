@@ -23,23 +23,24 @@
       (let [uri  (request/read-uri in)
             file (request/get-normalized-file uri)]
         (logging/log :debug "Request for uri" uri)
+        (logging/log-access client uri)
 
-        (if-let [local-file (files/get-file-or-index (request/get-normalized-file uri))]
-          ;; Found a file (or index file) - send the contents
-          (let [result (files/load-local-file local-file)]
-            (response/send-response client in out
-                                    20
-                                    (:mime-type result)
-                                    (:content result)))
-          ;; No file, generate index?
-          (if (config/get-config :generate-missing-index)
-            ;; Yes, generate index
-            (response/send-response client in out
-                                    20
-                                    "text/gemini"
-                                    (files/generate-index file))
-            ;; No, throw exception
-            (throw (ex-info "Unable to find file to serve" {:status 59 :extra (.toString file)})))))
+       (if-let [local-file (files/get-file-or-index (request/get-normalized-file uri))]
+         ;; Found a file (or index file) - send the contents
+         (let [result (files/load-local-file local-file)]
+           (response/send-response client in out
+                                   20
+                                   (:mime-type result)
+                                   (:content result)))
+         ;; No file, generate index?
+         (if (config/get-config :generate-missing-index)
+           ;; Yes, generate index
+           (response/send-response client in out
+                                   20
+                                   "text/gemini"
+                                   (files/generate-index file))
+           ;; No, throw exception
+           (throw (ex-info "Unable to find file to serve" {:status 59 :extra (.toString file)})))))
       (catch Exception e
        (let [message                (.getMessage e)
              {:keys [status extra]} (ex-data e)]
