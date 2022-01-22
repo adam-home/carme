@@ -4,7 +4,8 @@
             [carme.request :as request]
             [carme.response :as response]
             [carme.logging :as logging]
-            [carme.files :as files])
+            [carme.files :as files]
+            [less.awful.ssl :as ssl])
   (:import (java.io FileInputStream BufferedInputStream BufferedOutputStream)
            (java.security KeyStore)
            (java.net URI InetAddress)
@@ -48,7 +49,7 @@
          (response/send-error client in out status message extra))))))
 
 
-(defn- get-ssl-context
+(defn- get-ssl-context-jks
   "Load the SSL context from the keystore with the given filename and
   password."
   [keystore-name password]
@@ -64,18 +65,36 @@
          ssl-context))))
 
 
+(defn- get-ssl-context-pem
+  "Load the SSL context from PEM files."
+  [privkey-file cert-file]
+  (ssl/ssl-context privkey-file cert-file))
+
+
 (defn- handle-client
   "Spin off a Thread for processing a client connection."
   [client]
   (-> (Thread. (fn [] (process-client client)))
       .start))
 
+(defn- get-ssl-context-from-config
+  "Choose to get an SSLContext from either a Java keystore or a PEM
+  file, depending on what is defined in the config file. Java keystore
+  has priority."
+  []
+  (cond
+    (config/get-config :keystore)     (get-ssl-context-jks (config/get-config :keystore)
+                                                           (config/get-config :keystore-password))
+    (config/get-config :privkey-file) (get-ssl-context-pem (config/get-config :privkey-file)
+                                                           (config/get-config :cert-file))
+    :else                             (throw (javax.naming.ConfigurationException.
+                                              "No keystore or PEM defined in config file"))))
+
 
 (defn create-server
   "Create and start the Gemini server. Returns the Thread that is running the server."
   [& {:keys [host port]}]
-  (let [ssl-context    (get-ssl-context (config/get-config :keystore)
-                                        (config/get-config :keystore-password))
+  (let [ssl-context    (get-ssl-context-from-config)
         socket-factory (.getServerSocketFactory ssl-context)
         socket         (.createServerSocket socket-factory port -1 (InetAddress/getByName host))]
 

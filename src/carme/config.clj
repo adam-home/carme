@@ -7,8 +7,6 @@
                    :port              1065
                    :basedir           "/var/gemini"
                    :index-file        "index.gmi"
-                   :keystore          "keystore.jks"
-                   :keystore-password "password"
                    :mime-types        {".gmi" "text/gemini"}}))
 
 (defn load-config

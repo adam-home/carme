@@ -1,0 +1,9 @@
+{
+ :host                   "localhost"
+ :port                   1965
+ :basedir                "resources/gemfiles"
+ :index-file             "index.gmi"
+ :generate-missing-index true
+ :privkey-file           "privkey.pem"
+ :cert-file              "fullchain.pem"
+ :mime-types             {".gmi" "text/gemini"}}

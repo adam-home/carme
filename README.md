@@ -20,15 +20,29 @@ For fun. And to learn new things.
 
 Configuration is loaded from the `config.edn` file in the working directory, unless overridden.
 
-You need a `keystore.jks` containing your server-side certificate in the directory from which you start the server.
+You must configure where Carme will load server-side certificates from. You have two options; either:
 
-> lein run [path to config file]
+A Java keystore
+e.g.
+
+    :keystore          "path/to/keystore.jks"
+    :keystore-password "password for keystore"
+
+or a private key and certificate in PEM files (Let's Encrypt are a good source for these)
+e.g.
+
+    :privkey-file "path/to/privkey.pem"
+    :cert-file    "path/to/fullchain.pem"
+
+If you provide both, the Java keystore has priority.
+
+    lein run [path to config file]
 
 or
 
-> lein uberjar
->
-> java -jar target/carme-*-standalone.jar [path to config file]
+    lein uberjar
+    
+    java -jar target/carme-*-standalone.jar [path to config file]
 
 
 ## License

@@ -1,0 +1,7 @@
+{
+ :host                   "localhost"
+ :port                   1965
+ :basedir                "resources/gemfiles"
+ :index-file             "index.gmi"
+ :generate-missing-index true
+ :mime-types             {".gmi" "text/gemini"}}
