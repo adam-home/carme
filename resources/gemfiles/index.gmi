@@ -3,3 +3,7 @@
 Hello world, this is the index
 
 => gemini://localhost:1965/test.gmi
+
+Same file, no scheme, host or port.
+
+=> test.gmi

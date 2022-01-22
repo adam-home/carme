@@ -1,6 +1,6 @@
 {
  :host                   "localhost"
- :port                   1965
+ :port                   11965
  :basedir                "resources/gemfiles"
  :index-file             "index.gmi"
  :generate-missing-index true
