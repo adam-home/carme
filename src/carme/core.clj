@@ -74,7 +74,8 @@
 (defn create-server
   "Create and start the Gemini server. Returns the Thread that is running the server."
   [& {:keys [host port]}]
-  (let [ssl-context    (get-ssl-context "keystore.jks" "password")
+  (let [ssl-context    (get-ssl-context (config/get-config :keystore)
+                                        (config/get-config :keystore-password))
         socket-factory (.getServerSocketFactory ssl-context)
         socket         (.createServerSocket socket-factory port -1 (InetAddress/getByName host))]
 

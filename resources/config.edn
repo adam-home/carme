@@ -4,4 +4,6 @@
  :basedir                "resources/gemfiles"
  :index-file             "index.gmi"
  :generate-missing-index true
+ :keystore               "keystore.jks"
+ :keystore-password      "password"
  :mime-types             {".gmi" "text/gemini"}}
