@@ -23,6 +23,7 @@
   "Close a client connection."
   [client in out]
   (.flush out)
+  (.shutdownOutput client)
   (.close in)
   (.close out)
   (.close client))
@@ -65,4 +66,3 @@
       (println "EXTRA  :" extra-data)
 
       (send-and-close client in out meta)))
-  
