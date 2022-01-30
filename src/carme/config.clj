@@ -12,8 +12,11 @@
 (defn load-config
   [filename]
   (logging/log :info "Loading config from" filename)
-  (with-open [reader (java.io.PushbackReader. (io/reader filename))]
-    (reset! config (merge @config (edn/read reader)))))
+  (try
+    (with-open [reader (java.io.PushbackReader. (io/reader filename))]
+      (reset! config (merge @config (edn/read reader))))
+    (catch Exception e
+      false)))
 
 (defn get-config
   [option]

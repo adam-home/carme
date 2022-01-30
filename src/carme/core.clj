@@ -120,6 +120,8 @@
 
 (defn -main
   [& args]
-  (config/load-config (get-config-filename args))
+  (when-not (config/load-config (get-config-filename args))
+    (logging/log :error "Unable to read configuration file")
+    (System/exit 1))
   (let [server (create-server :host (config/get-config :host)
                               :port (config/get-config :port))]))
