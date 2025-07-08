@@ -4,6 +4,6 @@
  :basedir                "resources/gemfiles"
  :index-file             "index.gmi"
  :generate-missing-index true
- :privkey-file           "privkey.pem"
- :cert-file              "fullchain.pem"
+ :privkey-file           "resources/pem/privkey.pem"
+ :cert-file              "resources/pem/fullchain.pem"
  :mime-types             {".gmi" "text/gemini"}}

@@ -5,7 +5,8 @@
             [carme.response :as response]
             [carme.logging :as logging]
             [carme.files :as files]
-            [less.awful.ssl :as ssl])
+            [carme.ssl :as ssl])
+
   (:import (java.io FileInputStream BufferedInputStream BufferedOutputStream)
            (java.security KeyStore)
            (java.net URI InetAddress)
@@ -64,12 +65,10 @@
          (.init ssl-context (.getKeyManagers kmf) nil nil)
          ssl-context))))
 
-
 (defn- get-ssl-context-pem
   "Load the SSL context from PEM files."
   [privkey-file cert-file]
-  (ssl/ssl-context privkey-file cert-file))
-
+  (ssl/create-ssl-context privkey-file cert-file))
 
 (defn- handle-client
   "Spin off a Thread for processing a client connection."
